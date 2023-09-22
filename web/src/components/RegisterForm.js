@@ -4,15 +4,26 @@ import { Link, useNavigate } from 'react-router-dom';
 import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import Turnstile from 'react-turnstile';
 
+const pdtOptions = [
+  { key: 'cto', value: 'CTO办公室', text: 'CTO办公室' },
+  { key: 'zh', value: '智慧园区', text: '智慧园区' },
+  { key: 'doa', value: '数字化办公', text: '数字化办公' },
+  { key: 'ph', value: '公有云', text: '公有云' },
+  { key: 'hh', value: '混合云', text: '混合云' },
+  { key: 'cbu', value: '车BU', text: '车BU' },
+  { key: 'abg', value: 'ABG', text: 'ABG' },
+];
+
 const RegisterForm = () => {
   const [inputs, setInputs] = useState({
     username: '',
     password: '',
     password2: '',
     email: '',
-    verification_code: ''
+    verification_code: '',
+    pdt: ''
   });
-  const { username, password, password2 } = inputs;
+  const { username, password, password2, pdt } = inputs;
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [turnstileEnabled, setTurnstileEnabled] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState('');
@@ -44,13 +55,32 @@ const RegisterForm = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   }
 
+  function handleSelect(_event, options) {
+    const { name, value } = options;
+    setInputs((inputs) => ({ ...inputs, [name]: value }));
+  }
+
   async function handleSubmit(e) {
+
+    if (!username) {
+      showInfo('请输入用户名！');
+      return;
+    }
+    if (username && !/^[\u4E00-\u9FA5]+$/.test(username)) {
+      showInfo('用户名只能用中文，建议使用自己的真实姓名注册');
+      return;
+    }
+
     if (password.length < 8) {
       showInfo('密码长度不得小于 8 位！');
       return;
     }
     if (password !== password2) {
       showInfo('两次输入的密码不一致');
+      return;
+    }
+    if (pdt === '') {
+      showInfo('请选择PDT');
       return;
     }
     if (username && password) {
@@ -109,7 +139,7 @@ const RegisterForm = () => {
               fluid
               icon='user'
               iconPosition='left'
-              placeholder='输入用户名，最长 12 位'
+              placeholder='输入用户名，中文，最长 12 位'
               onChange={handleChange}
               name='username'
             />
@@ -131,6 +161,14 @@ const RegisterForm = () => {
               name='password2'
               type='password'
             />
+            <Form.Select
+              fluid
+              placeholder='请选择PDT'
+              name='pdt'
+              options = { pdtOptions }
+              onChange={(e, options) => handleSelect(e, options)}
+            />
+
             {showEmailVerification ? (
               <>
                 <Form.Input
