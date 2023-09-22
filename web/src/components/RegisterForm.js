@@ -67,7 +67,7 @@ const RegisterForm = () => {
       return;
     }
     if (username && !/^[\u4E00-\u9FA5]+$/.test(username)) {
-      showInfo('用户名只能用中文，建议使用自己的真实姓名注册');
+      showInfo('用户名只能用中文！');
       return;
     }
 
